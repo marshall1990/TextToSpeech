@@ -103,11 +103,7 @@ public class MainActivity extends Activity {
 						
 						Toast.makeText(getActivity(), "Saying : " + textToSpeak, Toast.LENGTH_SHORT).show();
 						
-						HashMap<String, String> params = new HashMap<String, String>();
-						
-						params.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, "1");
-						
-						textToSpeech.speak(textToSpeak, TextToSpeech.QUEUE_ADD, params);
+						textToSpeech.speak(textToSpeak, TextToSpeech.QUEUE_ADD, null);
 						
 					}
 					
