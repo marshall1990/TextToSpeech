@@ -1,11 +1,14 @@
 package com.example.texttospeech;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.view.LayoutInflater;
@@ -16,6 +19,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import android.os.Build;
 
@@ -58,7 +62,9 @@ public class MainActivity extends Activity {
 	public static class PlaceholderFragment extends Fragment {
 
 		private TextToSpeech textToSpeech;
-		
+
+		private final int REQUESTCODE_RECOGNIZESPEECH = 1;
+
 		public PlaceholderFragment() {
 		}
 
@@ -69,47 +75,95 @@ public class MainActivity extends Activity {
 					false);
 			return rootView;
 		}
-		
+
 		@Override
 		public void onActivityCreated(Bundle savedInstanceState) {
 			// TODO Auto-generated method stub
 			super.onActivityCreated(savedInstanceState);
-		
-			textToSpeech = new TextToSpeech(getActivity(), new OnInitListener() {
-				
-				@Override
-				public void onInit(int status) {
-					
-					if(status == TextToSpeech.SUCCESS)
-						Toast.makeText(getActivity(), "Text To Speech initialized !", Toast.LENGTH_SHORT).show();
-					else
-						Toast.makeText(getActivity(), "Error occurred while initializing Text To Speech !", Toast.LENGTH_SHORT).show();
-					
-				}
-			});
-			
-			final EditText etText = (EditText) getView().findViewById(R.id.etText);
-			
+
+			textToSpeech = new TextToSpeech(getActivity(),
+					new OnInitListener() {
+
+						@Override
+						public void onInit(int status) {
+
+							if (status == TextToSpeech.SUCCESS)
+								Toast.makeText(getActivity(),
+										"Text To Speech initialized !",
+										Toast.LENGTH_SHORT).show();
+							else
+								Toast.makeText(
+										getActivity(),
+										"Error occurred while initializing Text To Speech !",
+										Toast.LENGTH_SHORT).show();
+
+						}
+					});
+
+			final EditText etText = (EditText) getView().findViewById(
+					R.id.etText);
+
 			Button bSpeak = (Button) getView().findViewById(R.id.btnSpeak);
-			
+
 			bSpeak.setOnClickListener(new OnClickListener() {
-				
+
 				@Override
 				public void onClick(View v) {
-					
+
 					String textToSpeak = etText.getText().toString();
-					
-					if(textToSpeak.trim().length() > 0){
-						
-						Toast.makeText(getActivity(), "Saying : " + textToSpeak, Toast.LENGTH_SHORT).show();
-						
-						textToSpeech.speak(textToSpeak, TextToSpeech.QUEUE_ADD, null);
-						
+
+					if (textToSpeak.trim().length() > 0) {
+
+						Toast.makeText(getActivity(),
+								"Saying : " + textToSpeak, Toast.LENGTH_SHORT)
+								.show();
+
+						textToSpeech.speak(textToSpeak, TextToSpeech.QUEUE_ADD,
+								null);
+
 					}
-					
+
 				}
-			});	
+			});
+
+			ImageButton bVoice = (ImageButton) getView().findViewById(
+					R.id.btnVoice);
+
+			bVoice.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View arg0) {
+
+					Intent intent = new Intent(
+							RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+
+					startActivityForResult(intent, REQUESTCODE_RECOGNIZESPEECH);
+
+				}
+			});
 		}
+
+		@Override
+		public void onActivityResult(int requestCode, int resultCode,
+				Intent data) {
+			super.onActivityResult(requestCode, resultCode, data);
+
+			if (requestCode == REQUESTCODE_RECOGNIZESPEECH) {
+
+				if (resultCode == RESULT_OK) {
+
+					ArrayList<String> matches = data
+							.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+
+					if (matches.size() > 0)
+						textToSpeech.speak(matches.get(0),
+								TextToSpeech.QUEUE_ADD, null);
+
+				}
+
+			}
+		}
+
 	}
 
 }
